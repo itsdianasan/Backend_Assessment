@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
     nats-server:
@@ -6,14 +6,21 @@ services:
         ports:
             - "4222:4222"
             - "8222:8222"
+        networks:
+            - nats-network
 
-    mongo:
+    auth-service-db:
         image: mongo:latest
+        container_name: auth-service-db
         ports:
-            - "27017:27017"
+            - "27018:27017" # Maps external port 27018 to internal MongoDB port 27017
         environment:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: example
+        volumes:
+            - auth-service-db-data:/data/db
+        networks:
+            - auth-service-network
 
     auth-service:
         build: ./auth-service
@@ -21,16 +28,28 @@ services:
             - "3000:3000"
         environment:
             - NATS_URL=nats-server:4222
-            - MONGO_URL=mongodb://root:example@mongo:27017
+            - MONGO_URL=mongodb://root:example@auth-service-db:27017
             - JWT_SECRET=secret
         depends_on:
             - nats-server
-            - mongo
+            - auth-service-db
+        networks:
+            - auth-service-network
+            - nats-network
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:3000/"]
             interval: 10s
             timeout: 5s
             retries: 5
+
+volumes:
+    auth-service-db-data:
+
+networks:
+    auth-service-network:
+        driver: bridge
+    nats-network:
+        driver: bridge
     # express-service:
     #     build: ./express-service
     #     ports:
