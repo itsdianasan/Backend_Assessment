@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+    nats-server:
+        image: nats:latest
+        ports:
+            - "4222:4222"
+            - "8222:8222"
+
+    mongo:
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+
+    auth-service:
+        build: ./auth-service
+        ports:
+            - "3000:3000"
+        environment:
+            - NATS_URL=nats-server:4222
+            - MONGO_URL=mongodb://root:example@mongo:27017
+            - JWT_SECRET=secret
+        depends_on:
+            - nats-server
+            - mongo
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+    # express-service:
+    #     build: ./express-service
+    #     ports:
+    #         - "3000:3000"
+    #     environment:
+    #         - NATS_URL=nats-server:4222
+    #         - MONGO_URL=mongodb://root:example@mongo:27017
+    #     depends_on:
+    #         - nats-server
+    #         - mongo
+    #     healthcheck:
+    #         test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+    #         interval: 10s
+    #         timeout: 5s
+    #         retries: 5
+
+    # publisher-service:
+    #     build: ./publisher-service
+    #     environment:
+    #         - NATS_URL=nats-server:4222
+    #     depends_on:
+    #         express-service:
+    #             condition: service_healthy

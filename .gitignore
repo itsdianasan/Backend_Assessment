@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules/
+
+# TypeScript compiled output
+dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variables file
+.env
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE/editor-specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Optional npm cache
+.npm/
+
+# Typescript cache or temp files
+*.tsbuildinfo
