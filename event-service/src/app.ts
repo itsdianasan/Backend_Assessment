@@ -1,5 +1,5 @@
 import express from "express";
-import authRoutes from "./routes/authRoutes";
+import eventRoutes from "./routes/eventRoutes";
 import NatsService from "./services/natsService";
 
 export function createApp(natsService: NatsService) {
@@ -10,8 +10,10 @@ export function createApp(natsService: NatsService) {
         res.send("Hello from Express.js(Auth Service)!");
     });
 
+    app.use("/event", eventRoutes(natsService));
+
     // Routes
-    app.use("/auth", authRoutes(natsService));
+    // app.use("/event", authRoutes(natsService));
 
     return app;
 }

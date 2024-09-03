@@ -36,40 +36,53 @@ services:
         networks:
             - auth-service-network
             - nats-network
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-            interval: 10s
-            timeout: 5s
-            retries: 5
+        # healthcheck:
+        #     test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 5
+    
+    event-service-db:
+        image: mongo:latest
+        container_name: event-service-db
+        ports:
+            - "27019:27017" # Maps external port 27018 to internal MongoDB port 27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+        volumes:
+            - event-service-db-data:/data/db
+        networks:
+            - event-service-network
+
+    event-service:
+        build: ./event-service
+        ports:
+            - "3001:3000"
+        environment:
+            - NATS_URL=nats-server:4222
+            - MONGO_URL=mongodb://root:example@event-service-db:27017
+            - JWT_SECRET=secret
+        depends_on:
+            - nats-server
+            - event-service-db
+        networks:
+            - event-service-network
+            - nats-network
+        # healthcheck:
+        #     test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 5
 
 volumes:
     auth-service-db-data:
+    event-service-db-data:
 
 networks:
     auth-service-network:
         driver: bridge
+    event-service-network:
+        driver: bridge
     nats-network:
         driver: bridge
-    # express-service:
-    #     build: ./express-service
-    #     ports:
-    #         - "3000:3000"
-    #     environment:
-    #         - NATS_URL=nats-server:4222
-    #         - MONGO_URL=mongodb://root:example@mongo:27017
-    #     depends_on:
-    #         - nats-server
-    #         - mongo
-    #     healthcheck:
-    #         test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-    #         interval: 10s
-    #         timeout: 5s
-    #         retries: 5
-
-    # publisher-service:
-    #     build: ./publisher-service
-    #     environment:
-    #         - NATS_URL=nats-server:4222
-    #     depends_on:
-    #         express-service:
-    #             condition: service_healthy
