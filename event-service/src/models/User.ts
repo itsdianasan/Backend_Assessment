@@ -1,15 +1,18 @@
 import mongoose from "mongoose";
+import { TicketAttrs } from "./Ticket";
 
 interface UserAttrs {
     userId: string;
     email: string;
     password: string;
+    tickets: Array<TicketAttrs>;
 }
 
 interface UserDoc extends mongoose.Document {
     userId: string;
     email: string;
     password: string;
+    tickets: Array<TicketAttrs>;
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -30,6 +33,12 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        tickets: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Ticket",
+            },
+        ],
     },
     {
         toJSON: {

@@ -58,6 +58,7 @@ const signup = (natsService: NatsService) => {
                 userId: uuidv4(),
                 email,
                 password: hashedPassword,
+                tickets: [],
             });
 
             await user.save();

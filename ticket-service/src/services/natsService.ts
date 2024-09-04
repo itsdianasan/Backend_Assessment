@@ -16,6 +16,14 @@ class NatsService {
         }
     }
 
+    async publish(topic: string, message: string) {
+        if (!this.nc) {
+            throw new Error('NATS connection is not established');
+        }
+        this.nc.publish(topic, this.sc.encode(message));
+        console.log(`Published message: ${message}`);
+    }
+
     async subscribe(topic: string, callback: (message: string) => Promise<void>) {
         if (!this.nc) {
             throw new Error("NATS is not connected");
@@ -28,14 +36,6 @@ class NatsService {
             console.log(`Received message: ${message}`);
             await callback(message);
         }
-    }
-
-    async publish(topic: string, message: string) {
-        if (!this.nc) {
-            throw new Error('NATS connection is not established');
-        }
-        this.nc.publish(topic, this.sc.encode(message));
-        console.log(`Published message: ${message}`);
     }
 
     async close() {

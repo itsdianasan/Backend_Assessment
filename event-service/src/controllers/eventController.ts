@@ -41,8 +41,8 @@ const newEvent = (natsService: NatsService) => {
                 eventId: uuidv4(),
                 eventName: eventName,
                 eventDatetime: new Date(eventDatetime),
+                typesOfTickets: [],
                 eventVenue: eventVenue,
-                totalTickets: 0,
                 userId: user.userId,
             });
             await event.save();
@@ -90,7 +90,6 @@ const editEvent = (natsService: NatsService) => {
                 eventName,
                 eventDatetime,
                 eventVenue,
-                totalTickets,
             } = req.body;
             if (
                 !eventId ||
@@ -117,7 +116,6 @@ const editEvent = (natsService: NatsService) => {
             event.eventName = eventName;
             event.eventDatetime = new Date(eventDatetime);
             event.eventVenue = eventVenue;
-            event.totalTickets = totalTickets;
             await event.save();
             natsService.publish(
                 "Event",
@@ -139,4 +137,4 @@ const editEvent = (natsService: NatsService) => {
     };
 };
 
-export { newEvent };
+export { newEvent , editEvent };

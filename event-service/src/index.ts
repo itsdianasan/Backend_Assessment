@@ -1,6 +1,7 @@
 import MongoService from "./services/mongoService";
 import NatsService from "./services/natsService";
 import { UserReceiveMessage } from "./services/userService";
+import { TicketReceiveMessage } from "./services/ticketService";
 import { createApp } from "./app";
 
 const PORT = 3000;
@@ -18,20 +19,18 @@ const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
         // Create and start Express app
         const app = createApp(natsService);
         app.listen(PORT, () => {
-            console.log(`Express.js(Event Service) server running on port ${PORT}`);
+            console.log(
+                `Express.js(Event Service) server running on port ${PORT}`
+            );
         });
 
         // Connect to NATS and subscribe to a topic
         await natsService.connect();
-        // await natsService.subscribe("User", async (message) => {
-        //     await receiveMessage(message);
-        // })
-        await natsService.subscribe("User", UserReceiveMessage);
-        // await natsService.subscribe("test.topic", async (message) => {
-        //     await collection.insertOne({ message });
-        //     console.log("Message stored in MongoDB");
-        // });
 
+        await Promise.all([
+            natsService.subscribe("User", UserReceiveMessage),
+            natsService.subscribe("Ticket", TicketReceiveMessage),
+        ]);
     } catch (error) {
         console.error("Error:", error);
     }

@@ -74,15 +74,51 @@ services:
         #     interval: 10s
         #     timeout: 5s
         #     retries: 5
+    
+    ticket-service-db:
+        image: mongo:latest
+        container_name: ticket-service-db
+        ports:
+            - "27020:27017" # Maps external port 27018 to internal MongoDB port 27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: example
+        volumes:
+            - ticket-service-db-data:/data/db
+        networks:
+            - ticket-service-network
+
+    ticket-service:
+        build: ./ticket-service
+        ports:
+            - "3002:3000"
+        environment:
+            - NATS_URL=nats-server:4222
+            - MONGO_URL=mongodb://root:example@ticket-service-db:27017
+            - JWT_SECRET=secret
+        depends_on:
+            - nats-server
+            - ticket-service-db
+        networks:
+            - ticket-service-network
+            - nats-network
+        # healthcheck:
+        #     test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+        #     interval: 10s
+        #     timeout: 5s
+        #     retries: 5
 
 volumes:
     auth-service-db-data:
     event-service-db-data:
+    ticket-service-db-data:
 
 networks:
     auth-service-network:
         driver: bridge
     event-service-network:
+        driver: bridge
+    ticket-service-network:
         driver: bridge
     nats-network:
         driver: bridge

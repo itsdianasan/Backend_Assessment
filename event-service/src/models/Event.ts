@@ -1,11 +1,19 @@
 import mongoose from "mongoose";
+import { types } from "util";
+
+interface TicketType {
+    ticketTypeId: string;
+    category: string;
+    price: number;
+    ticketsAvailable: number;
+}
 
 interface EventAttrs {
     eventId: string;
     eventName: string;
     eventDatetime: Date;
     eventVenue: string;
-    totalTickets: number;
+    typesOfTickets: Array<TicketType>;
     userId: string;
 }
 
@@ -14,7 +22,7 @@ interface EventDoc extends mongoose.Document {
     eventName: string;
     eventDatetime: Date;
     eventVenue: string;
-    totalTickets: number;
+    typesOfTickets: Array<TicketType>;
     userId: string;
 }
 
@@ -40,8 +48,8 @@ const eventSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        totalTickets: {
-            type: Number
+        typesOfTickets: {
+            type: Array,
         },
         userId: {
             type: String,
@@ -66,4 +74,4 @@ const url = process.env.MONGO_URL || "mongodb://localhost:27017";
 mongoose.connect(url)
 const Event = mongoose.model<EventDoc, EventModel>("Event", eventSchema);
 
-export { Event };
+export { Event , TicketType};

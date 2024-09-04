@@ -12,6 +12,7 @@ RUN npm install
 
 # Copy the rest of the application files
 COPY . .
+# COPY ../common ./common
 
 # Compile TypeScript to JavaScript
 RUN npm run build
@@ -30,6 +31,9 @@ COPY package*.json ./
 
 # Install only production dependencies
 RUN npm install --only=production
+
+# Expose the port the app runs on
+EXPOSE 3000
 
 # Set the command to run the app
 CMD ["node", "dist/index.js"]
