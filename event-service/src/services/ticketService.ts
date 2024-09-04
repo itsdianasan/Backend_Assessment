@@ -51,6 +51,14 @@ const BuyTicket = async (msgObj:any) => {
     }
     user.tickets.push(ticket);
     await user.save();
+
+    const event = await Event.findOne({ eventId: msgObj.eventData.eventId });
+    if (!event) {
+        console.log("Event not found");
+        return;
+    }
+    event.typesOfTickets = msgObj.eventData.typesOfTickets;
+    await event.save();
     return;
 }
 

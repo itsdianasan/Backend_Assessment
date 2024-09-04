@@ -265,6 +265,9 @@ const purchaseTicket = (natsService: NatsService) => {
                 return;
             }
             ticketType.ticketsAvailable -= 1;
+            event.typesOfTickets = event.typesOfTickets.map((ticket) =>
+                ticket.ticketTypeId === ticketTypeId ? ticketType : ticket
+            );
             await event.save();
 
             const ticket = Ticket.build({
@@ -283,6 +286,7 @@ const purchaseTicket = (natsService: NatsService) => {
                 JSON.stringify({
                     action: "BuyTicket",
                     data: ticket,
+                    eventData: event,
                 })
             );
 
@@ -298,4 +302,18 @@ const purchaseTicket = (natsService: NatsService) => {
     };
 }
 
-export { newTicket, editTicket, deleteTicket, purchaseTicket };
+const viewTicketCategories = async (req: Request, res: Response) => {
+    try {
+        const { eventId } = req.params;
+        const event = await Event.findOne({ eventId });
+        if (!event) {
+            sendResponse(res, { msg: "Event not found" }, 404);
+            return;
+        }
+        sendResponse(res, { categories: event.typesOfTickets }, 200);
+    } catch (error) {
+        sendResponse(res, { msg: "Server error" }, 500);
+    }
+}
+
+export { newTicket, editTicket, deleteTicket, purchaseTicket , viewTicketCategories };

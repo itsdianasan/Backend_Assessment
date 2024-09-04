@@ -84,4 +84,19 @@ const signup = (natsService: NatsService) => {
     };
 };
 
-export { signin, signup };
+const ticketHistory = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        const user = await User.findOne({ userId })
+        if (!user) {
+            sendResponse(res, { msg: "User not found" }, 404);
+            return;
+        }
+
+        sendResponse(res, { tickets: user.tickets }, 200);
+    } catch (error) {
+        sendResponse(res, { msg: "Server error" }, 500);
+    }
+}
+
+export { signin, signup , ticketHistory };
